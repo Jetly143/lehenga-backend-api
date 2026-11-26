@@ -113,6 +113,19 @@ using (var scope = app.Services.CreateScope())
         dbContext.Database.Migrate();
         logger.LogInformation("✅ Database migrations applied successfully.");
 
+        // Ensure email verification columns exist in users table
+        try
+        {
+            dbContext.Database.ExecuteSqlRaw(@"
+                ALTER TABLE users ADD COLUMN IF NOT EXISTS is_email_verified boolean DEFAULT false;
+                ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_token varchar(255);
+            ");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning("Schema patch note: {Message}", ex.Message);
+        }
+
         // Ensure default Platform Admin user exists
         if (!dbContext.Users.Any(u => u.Role == UserRole.Admin))
         {
