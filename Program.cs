@@ -163,6 +163,27 @@ app.MapGet("/", () => Results.Ok(new
     timestamp = DateTime.UtcNow 
 }));
 
+app.MapGet("/diag", async (AppDbContext db) =>
+{
+    try
+    {
+        var canConnect = await db.Database.CanConnectAsync();
+        var userCount = await db.Users.CountAsync();
+        var admin = await db.Users.FirstOrDefaultAsync(u => u.Role == UserRole.Admin);
+        return Results.Ok(new 
+        { 
+            canConnect, 
+            userCount, 
+            adminExists = admin != null, 
+            adminEmail = admin?.Email 
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(detail: ex.ToString(), statusCode: 500);
+    }
+});
+
 app.MapControllers();
 
 app.Run();
