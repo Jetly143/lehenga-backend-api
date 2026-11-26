@@ -1,0 +1,26 @@
+# Standard .NET / C# .gitignore
+bin/
+obj/
+publish/
+outbox/
+*.zip
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build and IDE files
+.vs/
+.idea/
+.vscode/
+*.swp
+*~
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# OS generated
+.DS_Store
+Thumbs.db
