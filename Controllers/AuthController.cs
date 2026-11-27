@@ -90,6 +90,7 @@ public class AuthController : ControllerBase
 
         var token = GenerateJwtToken(user);
 
+        var frontendUrl = _configuration["Frontend:BaseUrl"] ?? "https://rentlehengaadmin.vercel.app";
         return Ok(new
         {
             message = isPartner
@@ -98,7 +99,7 @@ public class AuthController : ControllerBase
             token = token,
             tokenType = "Bearer",
             verificationToken = verificationToken,
-            verificationLink = isPartner ? $"http://localhost:3000/?action=confirm-email&token={verificationToken}&email={user.Email}" : null,
+            verificationLink = isPartner ? $"{frontendUrl}/?action=confirm-email&token={verificationToken}&email={Uri.EscapeDataString(user.Email)}" : null,
             user = MapToUserResponse(user)
         });
     }
@@ -588,11 +589,12 @@ public class AuthController : ControllerBase
 
         await _emailService.SendVerificationEmailAsync(user.Email, user.Name, token, user.Role);
 
+        var frontendUrl = _configuration["Frontend:BaseUrl"] ?? "https://rentlehengaadmin.vercel.app";
         return Ok(new
         {
             message = "Verification link resent to your email.",
             verificationToken = token,
-            verificationLink = $"http://localhost:3000/?action=confirm-email&token={token}&email={user.Email}"
+            verificationLink = $"{frontendUrl}/?action=confirm-email&token={token}&email={Uri.EscapeDataString(user.Email)}"
         });
     }
 
