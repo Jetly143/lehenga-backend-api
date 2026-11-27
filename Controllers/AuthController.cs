@@ -85,7 +85,17 @@ public class AuthController : ControllerBase
 
         if (isPartner && !string.IsNullOrWhiteSpace(verificationToken))
         {
-            await _emailService.SendVerificationEmailAsync(user.Email, user.Name, verificationToken, user.Role);
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendVerificationEmailAsync(user.Email, user.Name, verificationToken, user.Role);
+                }
+                catch
+                {
+                    // Email delivery logged in EmailService
+                }
+            });
         }
 
         var token = GenerateJwtToken(user);
@@ -587,7 +597,17 @@ public class AuthController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        await _emailService.SendVerificationEmailAsync(user.Email, user.Name, token, user.Role);
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _emailService.SendVerificationEmailAsync(user.Email, user.Name, token, user.Role);
+            }
+            catch
+            {
+                // Email delivery logged in EmailService
+            }
+        });
 
         var frontendUrl = _configuration["Frontend:BaseUrl"] ?? "https://rentlehengaadmin.vercel.app";
         return Ok(new
